@@ -99,6 +99,24 @@ int main()
     std::cout << "Benchmark finished." << std::endl;
     std::cout << "Expected trend: Serial > Spawn > Spinning > Sleeping" << std::endl;
     std::cout << "========================================" << std::endl;
+{
+    std::cout << "\n=== Dependency Test ===" << std::endl;
 
+    ComputeTask taskA(100, 1000);
+    ComputeTask taskB(100, 1000);
+    ComputeTask taskC(100, 1000);
+
+    ITaskSystem *system = new TaskSystemParallelThreadPoolSleeping(num_threads);
+
+    TaskID A = system->runAsyncWithDeps(&taskA, 100, {});
+    TaskID B = system->runAsyncWithDeps(&taskB, 100, {A});
+    TaskID C = system->runAsyncWithDeps(&taskC, 100, {A});
+
+    system->sync();
+
+    std::cout << "Dependency tasks finished!" << std::endl;
+
+    delete system;
+}
     return 0;
 }
